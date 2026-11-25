@@ -27,6 +27,7 @@ import com.carmotors.modelo.reporte.LotePorVencer;
 import com.carmotors.modelo.reporte.ProductividadTecnico;
 import com.carmotors.modelo.reporte.ResumenDescripcion;
 import com.carmotors.modelo.reporte.ResumenTipoServicio;
+import com.carmotors.modelo.reporte.ServicioCompletado;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -59,4 +60,7 @@ public interface ReporteDAO {
 
     /** Por proveedor: cantidad de evaluaciones y promedios de calidad y puntualidad. */
     List<DesempenoProveedor> desempenoProveedores() throws SQLException;
+
+    /** Servicios con fecha de recepción y entrega, junto con su tipo de mantenimiento. */
+    List<ServicioCompletado> serviciosCompletados() throws SQLException;
 }

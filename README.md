@@ -99,6 +99,7 @@ Las listas se filtran según la operación (por ejemplo, *Iniciar orden* solo mu
 | Alertas de inventario | Repuestos bajo el stock mínimo y lotes próximos a caducar. |
 | Recordatorios de mantenimiento preventivo | Clientes con preventivo vencido o próximo a vencer. |
 | Desempeño de proveedores | Ranking por calidad y puntualidad promedio. |
+| Tiempos promedio de reparación | Duración promedio entre recepción y entrega, agrupada por tipo de mantenimiento (Preventivo/Correctivo). |
 
 ### 5. Gestión de Proveedores
 - **Base de datos de proveedores**: nombre, persona de contacto, teléfono y email.

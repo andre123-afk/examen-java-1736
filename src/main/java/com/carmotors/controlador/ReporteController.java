@@ -52,6 +52,7 @@ public class ReporteController extends ControladorBase {
         registrar("4", () -> alertas());
         registrar("5", () -> recordatorios());
         registrar("6", () -> vista.mostrarDesempeno(servicio.desempenoProveedores()));
+        registrar("7", () -> vista.mostrarTiemposPromedio(servicio.tiemposPromedioReparacion()));
     }
 
     // Visto en clase: try / catch / throw / throws -> S10Demo03ExcepcionesMain (Sesión 10)

@@ -27,7 +27,9 @@ import com.carmotors.modelo.reporte.ProductividadTecnico;
 import com.carmotors.modelo.reporte.RecordatorioMantenimiento;
 import com.carmotors.modelo.reporte.ResumenDescripcion;
 import com.carmotors.modelo.reporte.ResumenTipoServicio;
+import com.carmotors.modelo.reporte.TiempoPromedioReparacion;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,8 @@ public class ReporteVista implements VistaMenu {
             "Consumo de repuestos",
             "Alertas de inventario (stock mínimo y caducidad)",
             "Recordatorios de mantenimiento preventivo",
-            "Desempeño de proveedores");
+            "Desempeño de proveedores",
+            "Ver Tiempos Promedio de Reparación");
 
     private final VistaConsola consola;
 
@@ -178,6 +181,26 @@ public class ReporteVista implements VistaMenu {
                         + " | puntualidad: " + Formato.unDecimal(d.getPromedioPuntualidad())
                         + " | evaluaciones: " + d.getEvaluaciones())
                 .toList(), SIN_DATOS);
+    }
+
+    // ------------------------------------------------------------ Tiempos promedio de reparación
+
+    public void mostrarTiemposPromedio(List<TiempoPromedioReparacion> tiempos) {
+        List<String> lineas = new ArrayList<>();
+        if (!tiempos.isEmpty()) {
+            lineas.add("Tipo de Mantenimiento | Tiempo Promedio de Finalización");
+            lineas.add("--------------------------------------------------------------");
+            lineas.addAll(tiempos.stream()
+                    .map(t -> Formato.ajustar(t.getTipoMantenimiento().getDescripcion(), 22)
+                            + "| " + formatearDuracion(t.getDuracionPromedio()))
+                    .toList());
+        }
+        imprimir("Informe de tiempos promedio de reparación", lineas, SIN_DATOS);
+    }
+
+    private String formatearDuracion(Duration duracion) {
+        return duracion.toDays() + " Días, " + duracion.toHoursPart() + " Horas, "
+                + duracion.toMinutesPart() + " Minutos";
     }
 
     // Marco común de todos los reportes: separador, título, cuerpo (o mensaje sin datos), separador.

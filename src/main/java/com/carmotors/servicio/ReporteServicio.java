@@ -23,6 +23,7 @@ import com.carmotors.config.ConexionFactory;
 import com.carmotors.dao.jdbc.ReporteDAOJdbc;
 import com.carmotors.dao.ReporteDAO;
 import com.carmotors.excepcion.DatoInvalidoException;
+import com.carmotors.modelo.TipoMantenimiento;
 import com.carmotors.modelo.reporte.AlertaStock;
 import com.carmotors.modelo.reporte.CalendarioPreventivo;
 import com.carmotors.modelo.reporte.ConsumoRepuesto;
@@ -32,11 +33,16 @@ import com.carmotors.modelo.reporte.ProductividadTecnico;
 import com.carmotors.modelo.reporte.RecordatorioMantenimiento;
 import com.carmotors.modelo.reporte.ResumenDescripcion;
 import com.carmotors.modelo.reporte.ResumenTipoServicio;
+import com.carmotors.modelo.reporte.ServicioCompletado;
+import com.carmotors.modelo.reporte.TiempoPromedioReparacion;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ReporteServicio {
     // Más solicitados primero.
@@ -184,6 +190,21 @@ public class ReporteServicio {
     public List<DesempenoProveedor> desempenoProveedores() throws SQLException {
         return reporteDAO.desempenoProveedores().stream()
                 .sorted(POR_PUNTAJE)
+                .toList();
+    }
+
+    /** Promedia la duración recepción-entrega por tipo de mantenimiento. */
+    public List<TiempoPromedioReparacion> tiemposPromedioReparacion() throws SQLException {
+        Map<TipoMantenimiento, Double> promediosEnSegundos =
+                reporteDAO.serviciosCompletados().stream()
+                        .collect(Collectors.groupingBy(ServicioCompletado::getTipoMantenimiento,
+                                Collectors.averagingLong(servicio -> Duration.between(servicio.getFechaRecepcion(),
+                                        servicio.getFechaEntrega()).getSeconds())));
+
+        return promediosEnSegundos.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entrada -> new TiempoPromedioReparacion(entrada.getKey(),
+                        Duration.ofSeconds(Math.round(entrada.getValue()))))
                 .toList();
     }
 }

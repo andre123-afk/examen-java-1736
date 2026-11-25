@@ -38,11 +38,13 @@ import com.carmotors.modelo.reporte.LotePorVencer;
 import com.carmotors.modelo.reporte.ProductividadTecnico;
 import com.carmotors.modelo.reporte.ResumenDescripcion;
 import com.carmotors.modelo.reporte.ResumenTipoServicio;
+import com.carmotors.modelo.reporte.ServicioCompletado;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,6 +130,11 @@ public class ReporteDAOJdbc implements ReporteDAO {
             + "COALESCE(SUM(e.calidad), 0) AS suma_calidad, COALESCE(SUM(e.puntualidad), 0) AS suma_puntualidad "
             + "FROM proveedores p LEFT JOIN evaluaciones_proveedor e ON e.proveedor_id = p.id "
             + "GROUP BY p.id, p.nombre, p.contacto, p.telefono, p.email ORDER BY p.id";
+
+    private static final String SQL_SERVICIOS_COMPLETADOS =
+            "SELECT mantenimiento_tipo_id, fecha_recepcion, fecha_entrega FROM servicios "
+            + "WHERE fecha_recepcion IS NOT NULL AND fecha_entrega IS NOT NULL "
+            + "ORDER BY mantenimiento_tipo_id, fecha_recepcion";
 
     private final ConexionFactory conexiones;
 
@@ -265,6 +272,22 @@ public class ReporteDAOJdbc implements ReporteDAO {
                 Proveedor proveedor = new Proveedor(fila.getInt("id"), fila.getString("nombre"),
                         fila.getString("contacto"), fila.getString("telefono"), fila.getString("email"));
                 resultado.add(new DesempenoProveedor(proveedor, cantidad, calidad, puntualidad));
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public List<ServicioCompletado> serviciosCompletados() throws SQLException {
+        List<ServicioCompletado> resultado = new ArrayList<>();
+        try (Connection conexion = conexiones.abrir();
+             PreparedStatement sentencia = conexion.prepareStatement(SQL_SERVICIOS_COMPLETADOS);
+             ResultSet fila = sentencia.executeQuery()) {
+            while (fila.next()) {
+                Timestamp recepcion = fila.getTimestamp("fecha_recepcion");
+                Timestamp entrega = fila.getTimestamp("fecha_entrega");
+                resultado.add(new ServicioCompletado(TipoMantenimiento.desdeId(
+                        fila.getInt("mantenimiento_tipo_id")), recepcion.toLocalDateTime(), entrega.toLocalDateTime()));
             }
         }
         return resultado;
